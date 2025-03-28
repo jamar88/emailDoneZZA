@@ -2,12 +2,19 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>Označeno jako hotové</title>
+  <title>Označení úkolu</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      padding: 40px;
+      padding: 60px 20px;
+    }
+    #stav, #vysledek {
+      transition: all 0.3s ease;
+    }
+    #vysledek {
+      display: none;
+      color: #2e7d32;
     }
     iframe {
       display: none;
@@ -15,10 +22,15 @@
   </style>
 </head>
 <body>
-  <h2>⏳ Probíhá označení úkolu...</h2>
-  <p>Za chvíli se objeví výsledek.</p>
+  <div id="stav">
+    <h2>⏳ Probíhá označení úkolu...</h2>
+    <p>Za chvíli se objeví výsledek.</p>
+  </div>
 
-  <div id="vysledek" style="margin-top: 40px;"></div>
+  <div id="vysledek">
+    <h2>✅ Úkol byl označen jako hotový</h2>
+    <p>Děkujeme! Měj se krásně ☀️</p>
+  </div>
 
   <iframe id="actionFrame"></iframe>
 
@@ -31,22 +43,17 @@
     const id = getQueryParam("id");
 
     if (!id) {
-      document.getElementById("vysledek").innerHTML = "<h2 style='color:darkred;'>❗ Chybí ID úkolu</h2><p>Zkontroluj prosím odkaz.</p>";
+      document.getElementById("stav").innerHTML = "<h2 style='color:darkred;'>❗ Chybí ID úkolu</h2><p>Zkontroluj prosím odkaz.</p>";
     } else {
-      const iframe = document.getElementById("actionFrame");
       const encodedId = encodeURIComponent(id);
       const url = "https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec?id=" + encodedId;
-      
-      iframe.src = url;
+      document.getElementById("actionFrame").src = url;
 
-      // Pro případ, že Apps Script stránka vrátí HTML, které iframe neukáže,
-      // zobrazíme univerzální hlášku
+      // ⏱️ Po 3 vteřinách skryj první a ukaž druhou hlášku
       setTimeout(() => {
-        document.getElementById("vysledek").innerHTML = `
-          <h2 style="color:green;">✅ Úkol byl označen jako hotový</h2>
-          <p>Děkujeme! Měj se krásně ☀️</p>
-        `;
-      }, 3000); // čas pro dokončení označení (3 sekundy)
+        document.getElementById("stav").style.display = "none";
+        document.getElementById("vysledek").style.display = "block";
+      }, 3000);
     }
   </script>
 </body>
