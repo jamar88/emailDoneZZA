@@ -2,88 +2,62 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
-  <title>Označení úkolu</title>
+  <title>Označování úkolu</title>
   <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .hidden {
-      display: none;
-    }
-    h1 {
-      font-size: 1.8em;
-    }
-    .success {
-      color: green;
-      font-weight: bold;
-    }
-    .error {
-      color: darkred;
-      font-weight: bold;
-    }
-    a.button {
-      display: inline-block;
-      margin-top: 24px;
-      padding: 10px 20px;
-      background: #4CAF50;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-    }
+    body { font-family: sans-serif; text-align: center; padding: 40px; }
+    .hidden { display: none; }
+    .success { color: green; font-size: 1.5em; }
+    .error { color: red; font-size: 1.2em; }
   </style>
 </head>
 <body>
-
-  <div id="loading">
-    <h1>⏳ Probíhá označení úkolu...</h1>
-    <p>Za chvíli se objeví výsledek.</p>
+  <div id="loading">⏳ Probíhá označení úkolu...<p>Za chvíli se objeví výsledek.</p></div>
+  <div id="success" class="hidden success">✅ Úkol byl označen jako hotový<br><p>Děkujeme! Měj se krásně ☀️</p></div>
+  <div id="fail" class="hidden error">
+    ❗ Nepodařilo se úkol označit automaticky.<br><br>
+    <button onclick="window.open(getDirectUrl(), '_blank')">🔁 Označit ručně</button>
   </div>
 
-  <div id="success" class="hidden">
-    <h1 class="success">✅ Úkol byl označen jako hotový</h1>
-    <p>Děkujeme! Měj se krásně ☀️</p>
-  </div>
+<script>
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec';
 
-  <div id="error" class="hidden">
-    <h1 class="error">❌ Nepodařilo se označit úkol</h1>
-    <p>Zkontroluj prosím odkaz nebo otevři stránku v prohlížeči.</p>
-    <div id="manualLink"></div>
-  </div>
+  function getParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+  }
 
-  <script>
-    function getQueryParam(name) {
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name);
-    }
+  function getDirectUrl() {
+    const id = getParam("id");
+    return `${scriptURL}?id=${encodeURIComponent(id)}`;
+  }
 
-    const id = getQueryParam("id");
-    const encodedId = encodeURIComponent(id);
-    const appScriptURL = `https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec?id=${encodedId}`;
-
+  async function markAsDone() {
+    const id = getParam("id");
     if (!id) {
-      document.getElementById("loading").classList.add("hidden");
-      document.getElementById("error").classList.remove("hidden");
-      document.getElementById("manualLink").innerHTML = "<p>Chybí ID úkolu v odkazu.</p>";
-    } else {
-      fetch(appScriptURL, { mode: "no-cors" })
-        .then(() => {
-          document.getElementById("loading").classList.add("hidden");
-          document.getElementById("success").classList.remove("hidden");
-        })
-        .catch((error) => {
-          console.error("Chyba:", error);
-          document.getElementById("loading").classList.add("hidden");
-          document.getElementById("error").classList.remove("hidden");
-          document.getElementById("manualLink").innerHTML = `
-            <p>👉 Pokud nic neproběhlo, zkus kliknout na tlačítko níže:</p>
-            <a class="button" href="${appScriptURL}" target="_blank">✅ Označit ručně</a>
-          `;
-        });
+      document.getElementById("loading").innerHTML = "❗ Chybí ID úkolu";
+      return;
     }
-  </script>
 
+    try {
+      await fetch(`${scriptURL}?id=${encodeURIComponent(id)}`, {
+        method: 'GET',
+        mode: 'no-cors'  // Důležité kvůli WebView
+      });
+
+      // Pokusíme se čekat a pak zobrazit výsledek
+      setTimeout(() => {
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("success").classList.remove("hidden");
+      }, 1500);
+
+    } catch (e) {
+      // V některých případech WebView blokuje – nabídneme ruční otevření
+      document.getElementById("loading").classList.add("hidden");
+      document.getElementById("fail").classList.remove("hidden");
+    }
+  }
+
+  markAsDone();
+</script>
 </body>
 </html>
