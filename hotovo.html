@@ -1,59 +1,23 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-  <meta charset="UTF-8" />
-  <title>Označení úkolu</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 60px 20px;
-    }
-    #stav, #vysledek {
-      transition: all 0.3s ease;
-    }
-    #vysledek {
-      display: none;
-      color: #2e7d32;
-    }
-    img {
-      display: none;
-    }
-  </style>
-</head>
-<body>
-  <div id="stav">
-    <h2>⏳ Probíhá označení úkolu...</h2>
-    <p>Za chvíli se objeví výsledek.</p>
-  </div>
+<script>
+  const query = new URLSearchParams(window.location.search);
+  const id = query.get("id");
 
-  <div id="vysledek">
-    <h2>✅ Úkol byl označen jako hotový</h2>
-    <p>Děkujeme! Měj se krásně ☀️</p>
-  </div>
+  if (!id) {
+    document.body.innerHTML = "<h2 style='color:red'>❗ Chybí ID</h2>";
+  } else {
+    // Vynutit otevření odkazu v prohlížeči
+    const redirectUrl = "https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec?id=" + encodeURIComponent(id);
+    
+    // Ukázat uživateli hlášku a odkaz
+    document.body.innerHTML = `
+      <h2>👀 Klikni pro potvrzení úkolu</h2>
+      <p>Otevři prosím následující odkaz v prohlížeči:</p>
+      <a href="${redirectUrl}" target="_blank" style="font-size: 20px; color: blue;">✅ Otevřít úkol</a>
+    `;
 
-  <img id="actionImg" src="" />
-
-  <script>
-    function getQueryParam(name) {
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name);
-    }
-
-    const id = getQueryParam("id");
-
-    if (!id) {
-      document.getElementById("stav").innerHTML = "<h2 style='color:darkred;'>❗ Chybí ID úkolu</h2><p>Zkontroluj prosím odkaz.</p>";
-    } else {
-      const encodedId = encodeURIComponent(id);
-      const url = "https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec?id=" + encodedId;
-      document.getElementById("actionImg").src = url;
-
-      setTimeout(() => {
-        document.getElementById("stav").style.display = "none";
-        document.getElementById("vysledek").style.display = "block";
-      }, 3000);
-    }
-  </script>
-</body>
-</html>
+    // Nebo zkusíme otevřít automaticky
+    setTimeout(() => {
+      window.open(redirectUrl, "_blank");
+    }, 2000);
+  }
+</script>
