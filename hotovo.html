@@ -16,7 +16,7 @@
       display: none;
       color: #2e7d32;
     }
-    iframe {
+    img {
       display: none;
     }
   </style>
@@ -32,7 +32,7 @@
     <p>Děkujeme! Měj se krásně ☀️</p>
   </div>
 
-  <iframe id="actionFrame"></iframe>
+  <img id="actionImg" src="" />
 
   <script>
     function getQueryParam(name) {
@@ -47,9 +47,8 @@
     } else {
       const encodedId = encodeURIComponent(id);
       const url = "https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec?id=" + encodedId;
-      document.getElementById("actionFrame").src = url;
+      document.getElementById("actionImg").src = url;
 
-      // ⏱️ Po 3 vteřinách skryj první a ukaž druhou hlášku
       setTimeout(() => {
         document.getElementById("stav").style.display = "none";
         document.getElementById("vysledek").style.display = "block";
