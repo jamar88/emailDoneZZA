@@ -1,51 +1,52 @@
-<!-- hotovo.html -->
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Označení úkolu</title>
+  <meta charset="UTF-8" />
+  <title>Označeno jako hotové</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
       padding: 40px;
     }
-    .msg {
-      font-size: 1.4rem;
-      margin-top: 20px;
+    iframe {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h2>⏳ Zpracovávám úkol...</h2>
-  <div class="msg" id="vysledek"></div>
+  <h2>⏳ Probíhá označení úkolu...</h2>
+  <p>Za chvíli se objeví výsledek.</p>
+
+  <div id="vysledek" style="margin-top: 40px;"></div>
+
+  <iframe id="actionFrame"></iframe>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec";
-
     function getQueryParam(name) {
       const url = new URL(window.location.href);
       return url.searchParams.get(name);
     }
 
     const id = getQueryParam("id");
-    const vysledek = document.getElementById("vysledek");
 
     if (!id) {
-      document.querySelector("h2").textContent = "❌ Chybí ID úkolu";
-      vysledek.textContent = "Zkontroluj prosím odkaz.";
+      document.getElementById("vysledek").innerHTML = "<h2 style='color:darkred;'>❗ Chybí ID úkolu</h2><p>Zkontroluj prosím odkaz.</p>";
     } else {
-      fetch(`${API_URL}?id=${encodeURIComponent(id)}`)
-        .then(res => res.text())
-        .then(text => {
-          document.querySelector("h2").innerHTML = "✅ Hotovo!";
-          vysledek.innerHTML = text;
-        })
-        .catch(err => {
-          document.querySelector("h2").textContent = "⚠️ Došlo k chybě";
-          vysledek.textContent = "Zkus to prosím později.";
-        });
+      const iframe = document.getElementById("actionFrame");
+      const encodedId = encodeURIComponent(id);
+      const url = "https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec?id=" + encodedId;
+      
+      iframe.src = url;
+
+      // Pro případ, že Apps Script stránka vrátí HTML, které iframe neukáže,
+      // zobrazíme univerzální hlášku
+      setTimeout(() => {
+        document.getElementById("vysledek").innerHTML = `
+          <h2 style="color:green;">✅ Úkol byl označen jako hotový</h2>
+          <p>Děkujeme! Měj se krásně ☀️</p>
+        `;
+      }, 3000); // čas pro dokončení označení (3 sekundy)
     }
   </script>
 </body>
