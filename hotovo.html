@@ -1,0 +1,52 @@
+<!-- hotovo.html -->
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Označení úkolu</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    .msg {
+      font-size: 1.4rem;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>⏳ Zpracovávám úkol...</h2>
+  <div class="msg" id="vysledek"></div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxBJWfdboKxguV9iwXmVhzHQPDAhd-qXqJMpwSbetv0SK_wWuTD8O3I9WZ2TLAU-Yq1PA/exec";
+
+    function getQueryParam(name) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name);
+    }
+
+    const id = getQueryParam("id");
+    const vysledek = document.getElementById("vysledek");
+
+    if (!id) {
+      document.querySelector("h2").textContent = "❌ Chybí ID úkolu";
+      vysledek.textContent = "Zkontroluj prosím odkaz.";
+    } else {
+      fetch(`${API_URL}?id=${encodeURIComponent(id)}`)
+        .then(res => res.text())
+        .then(text => {
+          document.querySelector("h2").innerHTML = "✅ Hotovo!";
+          vysledek.innerHTML = text;
+        })
+        .catch(err => {
+          document.querySelector("h2").textContent = "⚠️ Došlo k chybě";
+          vysledek.textContent = "Zkus to prosím později.";
+        });
+    }
+  </script>
+</body>
+</html>
